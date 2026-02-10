@@ -1,0 +1,27 @@
+@namespace("com.checkout.events")
+protocol NoProtocol {
+
+	record PageViewEvent {
+
+		int user_id;
+
+		string postcode;
+
+		string webpage;
+
+		long timestamp;
+	}
+
+	record AggregatedPageViewEvent {
+
+		string postcode;
+
+		int pageViewCount;
+
+		int aggregateIntervalInSeconds;
+
+		timestamp_ms  aggregationWindow;
+	}
+
+
+}
