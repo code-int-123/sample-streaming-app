@@ -84,7 +84,7 @@ resource "aws_instance" "page_view_aggregator" {
   key_name               = var.ec2_key_pair_name
 
   root_block_device {
-    volume_size = 20
+    volume_size = 30
     volume_type = "gp3"
   }
 
