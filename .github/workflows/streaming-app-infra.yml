@@ -94,5 +94,6 @@ jobs:
           TF_VAR_confluent_kafka_api_key: 2WEAJASHMTCZC4YD
           TF_VAR_confluent_kafka_api_secret: cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww
 #          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+
 #          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
