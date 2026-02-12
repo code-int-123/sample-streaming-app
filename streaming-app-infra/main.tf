@@ -25,8 +25,3 @@ provider "aws" {
   access_key = var.aws_access_key_id
   secret_key = var.aws_secret_access_key
 }
-
-# provider "confluent" {
-#   cloud_api_key    = var.confluent_cloud_api_key
-#   cloud_api_secret = var.confluent_cloud_api_secret
-# }
