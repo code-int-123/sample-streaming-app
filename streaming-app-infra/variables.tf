@@ -7,22 +7,22 @@ variable "aws_region" {
 variable "environment" {
   description = "Deployment environment"
   type        = string
-  default     = "dev"
+  default     = "test"
 }
 
 # Confluent Cloud
 
-variable "confluent_cloud_api_key" {
-  description = "Confluent Cloud API key"
-  type        = string
-  sensitive   = true
-}
-
-variable "confluent_cloud_api_secret" {
-  description = "Confluent Cloud API secret"
-  type        = string
-  sensitive   = true
-}
+# variable "confluent_cloud_api_key" {
+#   description = "Confluent Cloud API key"
+#   type        = string
+#   sensitive   = true
+# }
+#
+# variable "confluent_cloud_api_secret" {
+#   description = "Confluent Cloud API secret"
+#   type        = string
+#   sensitive   = true
+# }
 
 variable "confluent_environment_id" {
   description = "Confluent Cloud environment ID (e.g. env-xxxxx)"
