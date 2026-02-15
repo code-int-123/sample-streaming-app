@@ -28,12 +28,6 @@ variable "ec2_instance_type" {
   default     = "t3.micro"
 }
 
-variable "ec2_key_pair_name" {
-  description = "Name of the EC2 key pair for SSH access"
-  type        = string
-  default     = ""
-}
-
 # Confluent Cloud
 
 # variable "confluent_cloud_api_key" {
