@@ -83,15 +83,6 @@ resource "aws_instance" "page_view_aggregator" {
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   key_name               = var.ec2_key_pair_name
 
-  user_data = <<-EOF
-    #!/bin/bash
-    yum update -y
-    yum install -y docker
-    systemctl enable docker
-    systemctl start docker
-    usermod -aG docker ec2-user
-  EOF
-
   root_block_device {
     volume_size = 30
     volume_type = "gp3"
