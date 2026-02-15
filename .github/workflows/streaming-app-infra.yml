@@ -64,6 +64,7 @@ jobs:
           TF_VAR_confluent_kafka_api_secret: cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww
           TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_ec2_key_pair_name: ${{ secrets.EC2_KEY_PAIR_NAME }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
@@ -111,6 +112,7 @@ jobs:
           TF_VAR_confluent_kafka_api_secret: cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww
           TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_ec2_key_pair_name: ${{ secrets.EC2_KEY_PAIR_NAME }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
@@ -168,14 +170,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Get EC2 Instance ID
+      - name: Get EC2 Instance IP
         id: ec2
         run: |
-          INSTANCE_ID=$(aws ec2 describe-instances \
+          EC2_IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=test-page-view-aggregator" "Name=instance-state-name,Values=running" \
-            --query "Reservations[0].Instances[0].InstanceId" \
+            --query "Reservations[0].Instances[0].PublicIpAddress" \
             --output text)
-          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+          echo "ip=$EC2_IP" >> $GITHUB_OUTPUT
 
       - name: Get ECR Registry
         id: ecr
@@ -183,16 +185,15 @@ jobs:
           ECR_REGISTRY=$(aws sts get-caller-identity --query Account --output text).dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
           echo "registry=$ECR_REGISTRY" >> $GITHUB_OUTPUT
 
-      - name: Deploy via SSM
-        run: |
-          aws ssm send-command \
-            --instance-ids ${{ steps.ec2.outputs.instance_id }} \
-            --document-name "AWS-RunShellScript" \
-            --parameters 'commands=[
-              "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr.outputs.registry }}",
-              "docker pull ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest",
-              "docker stop page-view-aggregator || true",
-              "docker rm page-view-aggregator || true",
-              "docker run -d --name page-view-aggregator --restart unless-stopped ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest"
-            ]' \
-            --output text
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ steps.ec2.outputs.ip }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          script: |
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr.outputs.registry }}
+            docker pull ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+            docker stop page-view-aggregator || true
+            docker rm page-view-aggregator || true
+            docker run -d --name page-view-aggregator --restart unless-stopped ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
