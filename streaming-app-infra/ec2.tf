@@ -52,7 +52,7 @@ resource "aws_iam_role_policy" "ecr_access" {
 }
 
 resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "${var.environment}-page-view-aggregator-ec2-profile"
+  name = "${var.environment}-page-view-aggregator-ec2-profile-2"
   role = aws_iam_role.ec2_role.name
 }
 
