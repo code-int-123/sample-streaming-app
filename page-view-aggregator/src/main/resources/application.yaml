@@ -18,3 +18,5 @@ kafka:
   replication-factor: ${KAFKA_REPLICATION_FACTOR:3}
   min-insync-replicas: ${KAFKA_MIN_INSYNC_REPLICAS:2}
   commit-interval-ms: 0
+  page-view-input-topic: test.streaming.page-view
+  page-view-output-topic: test.streaming.page-view.output

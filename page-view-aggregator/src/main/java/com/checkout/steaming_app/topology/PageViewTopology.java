@@ -3,149 +3,69 @@ package com.checkout.steaming_app.topology;
 import com.checkout.events.AggregatedPageViewEvent;
 import com.checkout.events.PageViewEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
-import org.apache.kafka.streams.kstream.KStream;
-import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.*;
+import org.apache.kafka.streams.processor.TimestampExtractor;
+import org.apache.kafka.streams.state.WindowStore;
+import com.checkout.steaming_app.config.KafkaStreamsConfig;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import java.time.Duration;
+import java.time.Instant;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class PageViewTopology {
 
-    private static final String DISCARD_DUPLICATES =
-            "check-and-discard-duplicates---%s".formatted(PageViewTopology.class.getSimpleName());
-    private static final String TRANSFORM_DISCARD_DUPLICATES = "---transform---%s".formatted(DISCARD_DUPLICATES);
-    private static final String MAP_COMMAND_TO_MASTERED =
-            "map-command-to-mastered---%s".formatted(PageViewTopology.class.getSimpleName());
-    private static final String TRANSFORM_MAP_COMMAND_TO_MASTERED =
-            "---transform---%s".formatted(MAP_COMMAND_TO_MASTERED);
-    private static final String FORCE_SYNC_MASTERED_TO_STATE_STORE =
-            "force-sync-mastered-to-state-store---%s".formatted(PageViewTopology.class.getSimpleName());
-    private static final String TRANSFORM_FORCE_SYNC_MASTERED_TO_STATE_STORE =
-            "---transform---%s".formatted(FORCE_SYNC_MASTERED_TO_STATE_STORE);
-    private static final String FILTER_NON_NULL_1 =
-            "---filter---non-null---%s-%s".formatted(PageViewTopology.class.getSimpleName(), 1);
-    private static final String FILTER_NON_NULL_2 =
-            "---filter---non-null---%s-%s".formatted(PageViewTopology.class.getSimpleName(), 2);
-    private static final String MASTERED_OUTPUT_KEY_RE_KEY_DESCRIPTION =
-            "mastered-to-output-key---%s".formatted(PageViewTopology.class.getSimpleName());
-    private static final String SELECT_KEY_MASTERED_OUTPUT_KEY_RE_KEY_DESCRIPTION =
-            "---re-key---%s".formatted(MASTERED_OUTPUT_KEY_RE_KEY_DESCRIPTION);
-    private static final String PEEK_TEMPLATE = "---peek---produce-%s---from-%s---to-%s";
+    private static final String STATE_STORE_NAME = "page-view-count-by-postcode-store";
+    private static final int WINDOW_SIZE_SECONDS = 60;
 
-    // INPUT
-//    private final String changeEmsOrderCommandTopicName;
-//
-//    // ERROR
-//    private final String changeEmsOrderCommandFailedTopicName;
-//
-//    // OUTPUT
-//    private final String emsOrderMasteredTopicName;
-//
-//    private final String emsOrderMasteredStateStoreName;
-//    private final String emsOrderMasteredHashAccumulatorStateStoreName;
-//    private final String orphanCancelEmsOrderCommandStateStoreName;
-
-//    public EmsOrderMasteringTopology(
-//            OrderMasterKafkaTopics kafkaTopics, StateStoreBuilderFactory stateStoreBuilderFactory) {
-//        this.changeEmsOrderCommandTopicName = kafkaTopics.getMaster().getChangeEmsOrderByIncomingEmsOrderIdTopic();
-//        this.changeEmsOrderCommandFailedTopicName =
-//                kafkaTopics.getMaster().getChangeEmsOrderFailedByIncomingEmsOrderIdTopic();
-//        this.emsOrderMasteredTopicName = kafkaTopics.getMaster().getEmsOrderMasteredTopic();
-//        this.emsOrderMasteredStateStoreName = kafkaTopics.getStateStores().getEmsOrderMasteredStoreName();
-//        this.orphanCancelEmsOrderCommandStateStoreName =
-//                kafkaTopics.getStateStores().getOrphanCancelEmsOrderCommandStateStoreName();
-//        this.emsOrderMasteredHashAccumulatorStateStoreName =
-//                kafkaTopics.getStateStores().getEmsOrderMasteredHashAccumulatorStateStoreName();
-//        this.stateStoreBuilderFactory = stateStoreBuilderFactory;
-//    }
-
+    private final KafkaStreamsConfig kafkaProperties;
 
     @Bean
-    public KStream<String, PageViewEvent> emsOrderMasteringTopologyStreamConfigurer(
-            StreamsBuilder emsOrderMasteringKafkaStreamBuilder) {
+    public KStream<String, PageViewEvent> pageViewAggregationTopology(
+            StreamsBuilder streamsBuilder) {
 
-//        emsOrderMasteringKafkaStreamBuilder.addStateStore(stateStoreBuilderFactory.emsOrderStateStore());
-//        emsOrderMasteringKafkaStreamBuilder.addStateStore(
-//                stateStoreBuilderFactory.orphanCancelEmsOrderCommandStateStore());
-//        emsOrderMasteringKafkaStreamBuilder.addStateStore(
-//                stateStoreBuilderFactory.emsOrderMasteredHashAccumulatorStateStore());
+        KStream<String, PageViewEvent> stream = streamsBuilder
+                .stream(
+                kafkaProperties.getPageViewInputTopic(),
+                Consumed.<String, PageViewEvent>as("page-view-input")
+                        .withTimestampExtractor(new PageViewEventTimestampExtractor()));
 
-        KStream<String, PageViewEvent> stream =
-                emsOrderMasteringKafkaStreamBuilder.stream("test.streaming.page-view");
+        TimeWindows tumblingWindow = TimeWindows.ofSizeAndGrace(Duration.ofMinutes(1), Duration.ofMinutes(30));
 
-        stream.mapValues(v->AggregatedPageViewEvent
-                .newBuilder().setPageViewCount(1)
-                .setPostcode(v.getPostcode())
-                .setAggregateIntervalInSeconds(60)
-                .setAggregationWindow(LocalDateTime.now().toInstant(ZoneOffset.UTC)).build())
-                .to("test.streaming.page-view.output");
+        stream
+                .groupByKey()
+                .windowedBy(tumblingWindow)
+                .count(Materialized.<String, Long, WindowStore<org.apache.kafka.common.utils.Bytes, byte[]>>as(STATE_STORE_NAME)
+                        .withKeySerde(Serdes.String())
+                        .withValueSerde(Serdes.Long())
+                        .withRetention(Duration.ofHours(1)))
+                .toStream()
+                .mapValues((windowedKey, count) -> AggregatedPageViewEvent.newBuilder()
+                        .setPostcode(windowedKey.key())
+                        .setPageViewCount(count.intValue())
+                        .setAggregateIntervalInSeconds(WINDOW_SIZE_SECONDS)
+                        .setAggregationWindow(Instant.ofEpochMilli(windowedKey.window().start()))
+                        .build())
+                .selectKey((windowedKey, value) -> windowedKey.key())
+                .to(kafkaProperties.getPageViewOutputTopic());
 
         return stream;
-
-//        emsOrderStateStoreLoader.loadStream(stream);
-//
-//        KStream<String, ChangeEmsOrder> changeEmsOrderCommandStream =
-//                emsOrderMasteringKafkaStreamBuilder.stream(changeEmsOrderCommandTopicName);
-//
-//        changeEmsOrderCommandStream
-//                .transformValues(
-//                        kafkaStreamsTracing.valueTransformerWithKey(
-//                                TRANSFORM_DISCARD_DUPLICATES,
-//                                () -> new EmsOrderMasteredDuplicateDetectingTransformer(
-//                                        emsOrderMasteredHashAccumulatorStateStoreName)),
-//                        Named.as(TRANSFORM_DISCARD_DUPLICATES),
-//                        emsOrderMasteredHashAccumulatorStateStoreName)
-//                .filter((k, v) -> v != null, Named.as(FILTER_NON_NULL_1))
-//                .flatTransformValues(
-//                        kafkaStreamsTracing.valueTransformerWithKey(
-//                                TRANSFORM_MAP_COMMAND_TO_MASTERED,
-//                                () -> new ChangeEmsOrderCommandTransformer(
-//                                        emsOrderMasteredStateStoreName,
-//                                        orphanCancelEmsOrderCommandStateStoreName,
-//                                        emsOrderMasteredMapper,
-//                                        emsOrderMasteredOrphanCancelMapper)),
-//                        Named.as(TRANSFORM_MAP_COMMAND_TO_MASTERED),
-//                        orphanCancelEmsOrderCommandStateStoreName,
-//                        emsOrderMasteredStateStoreName)
-//                .filter((k, v) -> v != null, Named.as(FILTER_NON_NULL_2))
-//                .transformValues(
-//                        kafkaStreamsTracing.valueTransformerWithKey(
-//                                TRANSFORM_FORCE_SYNC_MASTERED_TO_STATE_STORE,
-//                                () -> new EmsOrderMasteredForceSyncToStateStoreTransformer(
-//                                        emsOrderMasteredStateStoreName)),
-//                        Named.as(TRANSFORM_FORCE_SYNC_MASTERED_TO_STATE_STORE),
-//                        emsOrderMasteredStateStoreName)
-//                .selectKey(toHubIdentifier(), Named.as(SELECT_KEY_MASTERED_OUTPUT_KEY_RE_KEY_DESCRIPTION))
-//                .transformValues(
-//                        kafkaStreamsTracing.peek(
-//                                PEEK_TEMPLATE.formatted(
-//                                        EmsOrderMastered.class.getSimpleName(),
-//                                        EmsOrderMasteringTopology.class.getSimpleName(),
-//                                        emsOrderMasteredTopicName),
-//                                (k, v) -> log.info(
-//                                        "{} produced to {}: k={} tpeid={}",
-//                                        EmsOrderMastered.class.getSimpleName(),
-//                                        emsOrderMasteredTopicName,
-//                                        k,
-//                                        v.getIngestionEmsOrderIdentifier())),
-//                        Named.as(PEEK_TEMPLATE.formatted(
-//                                EmsOrderMastered.class.getSimpleName(),
-//                                EmsOrderMasteringTopology.class.getSimpleName(),
-//                                emsOrderMasteredTopicName)))
-//                .to(emsOrderMasteredTopicName);
-
-//        return changeEmsOrderCommandStream;
-
     }
 
-//    private static KeyValueMapper<String, EmsOrderMastered, String> toHubIdentifier() {
-//        return (k, v) -> v.getIdentifier();
-//    }
+    public static class PageViewEventTimestampExtractor implements TimestampExtractor {
+        @Override
+        public long extract(ConsumerRecord<Object, Object> record, long partitionTime) {
+            if (record.value() instanceof PageViewEvent event) {
+                return event.getTimestamp();
+            }
+            return partitionTime;
+        }
+    }
 }
