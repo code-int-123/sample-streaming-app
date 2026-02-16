@@ -196,4 +196,10 @@ jobs:
             docker pull ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
             docker stop page-view-aggregator || true
             docker rm page-view-aggregator || true
-            docker run -d --name page-view-aggregator --restart unless-stopped ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+            docker run -d --name page-view-aggregator \
+              --restart unless-stopped \
+              --log-driver=awslogs \
+              --log-opt awslogs-region=${{ env.AWS_REGION }} \
+              --log-opt awslogs-group=/ec2/page-view-aggregator \
+              --log-opt awslogs-create-group=true \
+              ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
