@@ -203,7 +203,7 @@ jobs:
               --log-opt awslogs-region=${{ env.AWS_REGION }} \
               --log-opt awslogs-group=/ec2/page-view-aggregator \
               --log-opt awslogs-create-group=true \
-              -e KAFKA_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required username="${{ secrets.CONFLUENT_KAFKA_API_KEY }}" password="${{ secrets.CONFLUENT_KAFKA_API_SECRET }}";' \
+              -e KAFKA_SASL_JAAS_CONFIG='org.apache.kafka.common.security.plain.PlainLoginModule required username=\"2WEAJASHMTCZC4YD\" password=\"cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww\";' \
               -e SCHEMA_REGISTRY_USER_INFO='${{ secrets.SCHEMA_REGISTRY_USER_INFO }}' \
               ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
 
