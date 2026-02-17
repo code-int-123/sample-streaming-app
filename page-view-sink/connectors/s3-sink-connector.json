@@ -5,7 +5,7 @@
     "tasks.max": "1",
     "topics": "test.streaming.page-view.output",
     "s3.region": "us-east-1",
-    "s3.bucket.name": "page-view-sink-output",
+    "s3.bucket.name": "test-page-view-sink-output",
     "storage.class": "io.confluent.connect.s3.storage.S3Storage",
     "format.class": "io.confluent.connect.s3.format.avro.AvroFormat",
     "flush.size": "100",
