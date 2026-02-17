@@ -6,11 +6,18 @@ while ! curl -s http://localhost:8083/connectors > /dev/null 2>&1; do
 done
 echo "Kafka Connect is ready."
 
-# Deploy the S3 Sink Connector
-echo "Deploying S3 Sink Connector..."
+# Deploy the aggregated page view S3 Sink Connector
+echo "Deploying aggregated page view S3 Sink Connector..."
 curl -X POST http://localhost:8083/connectors \
   -H "Content-Type: application/json" \
   -d @/connectors/s3-sink-connector.json
 
-echo "Connector deployed. Checking status..."
+# Deploy the raw page view S3 Sink Connector
+echo "Deploying raw page view S3 Sink Connector..."
+curl -X POST http://localhost:8083/connectors \
+  -H "Content-Type: application/json" \
+  -d @/connectors/page-view-event-s3-sink-connector.json
+
+echo "Connectors deployed. Checking status..."
 curl -s http://localhost:8083/connectors/page-view-s3-sink/status | python3 -m json.tool
+curl -s http://localhost:8083/connectors/page-view-event-s3-sink/status | python3 -m json.tool

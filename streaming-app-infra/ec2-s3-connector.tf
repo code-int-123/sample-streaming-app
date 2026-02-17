@@ -11,6 +11,10 @@ resource "aws_s3_bucket" "page_view_sink" {
   bucket = "${var.environment}-page-view-sink-output"
 }
 
+resource "aws_s3_bucket" "page_view_raw" {
+  bucket = "${var.environment}-page-view-raw-output"
+}
+
 resource "aws_iam_role" "s3_connector_role" {
   name = "${var.environment}-page-view-sink-ec2-role"
 
@@ -87,7 +91,9 @@ resource "aws_iam_role_policy" "s3_connector_s3_access" {
         ]
         Resource = [
           aws_s3_bucket.page_view_sink.arn,
-          "${aws_s3_bucket.page_view_sink.arn}/*"
+          "${aws_s3_bucket.page_view_sink.arn}/*",
+          aws_s3_bucket.page_view_raw.arn,
+          "${aws_s3_bucket.page_view_raw.arn}/*"
         ]
       }
     ]
