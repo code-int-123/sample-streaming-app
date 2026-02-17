@@ -276,8 +276,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr.outputs.registry }}
-            docker stop page-view-sink || true
-            docker rm page-view-sink || true
+            docker rm -f page-view-sink || true
             docker image rm ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_SINK }}:latest || true
             docker pull ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_SINK }}:latest
 
