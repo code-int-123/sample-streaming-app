@@ -14,8 +14,8 @@
     "partition.field.name": "postcode",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
     "value.converter": "io.confluent.connect.avro.AvroConverter",
-    "value.converter.schema.registry.url": "${SCHEMA_REGISTRY_URL}",
+    "value.converter.schema.registry.url": "https://psrc-z6m5xyw.us-east-1.aws.confluent.cloud",
     "value.converter.basic.auth.credentials.source": "USER_INFO",
-    "value.converter.basic.auth.user.info": "${SCHEMA_REGISTRY_API_KEY}:${SCHEMA_REGISTRY_API_SECRET}"
+    "value.converter.basic.auth.user.info": "ZQBGEF4ZI7KVMKWG:cfltuIg/1L2C0cMWXDrtpPcV0yvdsmQ0/1Z7qD5+OM13u7YkvT/56FuyS74D4BSQ"
   }
 }
