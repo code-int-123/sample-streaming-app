@@ -8,6 +8,7 @@ on:
       - "page-view-aggregator/**"
       - "page-view-events/**"
       - "page-view-sink/**"
+      - "custom-s3-partitioner/**"
       - "pom.xml"
   pull_request:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - "page-view-aggregator/**"
       - "page-view-events/**"
       - "page-view-sink/**"
+      - "custom-s3-partitioner/**"
       - "pom.xml"
   workflow_dispatch:
 
@@ -215,6 +217,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build Custom S3 Partitioner
+        run: mvn -pl custom-s3-partitioner package -DskipTests
+
+      - name: Copy Partitioner JAR to Docker Context
+        run: cp custom-s3-partitioner/target/custom-s3-partitioner-0.0.1-SNAPSHOT.jar page-view-sink/custom-s3-partitioner.jar
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
