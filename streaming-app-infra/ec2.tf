@@ -121,6 +121,12 @@ resource "aws_instance" "page_view_aggregator" {
   key_name                    = var.ec2_key_pair_name
   associate_public_ip_address = true
 
+  metadata_options {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2
+    http_endpoint               = "enabled"
+  }
+
   root_block_device {
     volume_size = 30
     volume_type = "gp3"
