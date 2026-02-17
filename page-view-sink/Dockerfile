@@ -6,8 +6,6 @@ RUN confluent-hub install --no-prompt confluentinc/kafka-connect-avro-converter:
 
 ENV CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
 
-# Install envsubst for connector config templating
-RUN microdnf install -y gettext && microdnf clean all
 
 # Copy connector configs and startup script
 USER root
