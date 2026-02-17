@@ -305,7 +305,8 @@ jobs:
             CONNECT_PRODUCER_SECURITY_PROTOCOL=SASL_SSL
             CONNECT_PRODUCER_SASL_MECHANISM=PLAIN
             CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="2WEAJASHMTCZC4YD" password="cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww";
-            CONNECT_PLUGIN_PATH=/usr/share/java,/usr/share/confluent-hub-components
+            CONNECT_PLUGIN_PATH=/usr/share/confluent-hub-components
+            CONNECT_PLUGIN_DISCOVERY=SERVICE_LOAD
             ENVEOF
 
             docker run -d --name page-view-sink \
@@ -317,32 +318,3 @@ jobs:
               -p 8083:8083 \
               --env-file /home/ec2-user/page-view-sink.env \
               ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_SINK }}:latest
-
-      - name: Wait for Kafka Connect to be ready
-        run: |
-          echo "Waiting for Kafka Connect to start..."
-          for i in $(seq 1 60); do
-            if curl -s http://${{ steps.ec2.outputs.ip }}:8083/connectors > /dev/null 2>&1; then
-              echo "Kafka Connect is ready."
-              exit 0
-            fi
-            sleep 10
-          done
-          echo "ERROR: Kafka Connect did not start within 10 minutes"
-          exit 1
-
-      - name: Register connectors
-        run: |
-          echo "Deploying aggregated page view S3 Sink Connector..."
-          curl -X POST http://${{ steps.ec2.outputs.ip }}:8083/connectors \
-            -H "Content-Type: application/json" \
-            -d @page-view-sink/connectors/s3-sink-connector.json
-
-          echo "Deploying raw page view S3 Sink Connector..."
-          curl -X POST http://${{ steps.ec2.outputs.ip }}:8083/connectors \
-            -H "Content-Type: application/json" \
-            -d @page-view-sink/connectors/page-view-raw-s3-sink-connector.json
-
-          echo "Checking connector status..."
-          curl -s http://${{ steps.ec2.outputs.ip }}:8083/connectors/page-view-s3-sink/status
-          curl -s http://${{ steps.ec2.outputs.ip }}:8083/connectors/page-view-event-s3-sink/status
