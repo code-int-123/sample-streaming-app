@@ -100,6 +100,22 @@ resource "aws_iam_role_policy" "s3_connector_s3_access" {
   })
 }
 
+resource "aws_iam_role_policy" "s3_connector_cloudwatch_metrics" {
+  name = "cloudwatch-metrics"
+  role = aws_iam_role.s3_connector_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "cloudwatch:PutMetricData"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_security_group" "s3_connector_sg" {
   name        = "${var.environment}-page-view-sink-sg"
   description = "Security group for page-view-sink EC2 instance"

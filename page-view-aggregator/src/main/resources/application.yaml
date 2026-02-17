@@ -2,6 +2,19 @@ spring:
   application:
     name: steaming-app
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  cloudwatch:
+    metrics:
+      export:
+        namespace: PageViewAggregator
+        step: 60s
+        region: us-east-1
+        enabled: true
+
 kafka:
   state-dir: /tmp/kafka-streams
   application-id: steaming-app
