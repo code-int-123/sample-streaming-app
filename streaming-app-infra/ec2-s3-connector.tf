@@ -135,7 +135,7 @@ resource "aws_iam_instance_profile" "s3_connector_profile" {
 
 resource "aws_instance" "page_view_sink" {
   ami                         = data.aws_ami.amazon_linux.id
-  instance_type               = "t3.medium"
+  instance_type               = "t3.small"
   iam_instance_profile        = aws_iam_instance_profile.s3_connector_profile.name
   vpc_security_group_ids      = [aws_security_group.s3_connector_sg.id]
   key_name                    = var.ec2_key_pair_name
