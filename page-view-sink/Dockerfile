@@ -12,4 +12,4 @@ COPY connectors/ /connectors/
 COPY --chmod=755 start.sh /start.sh
 USER appuser
 
-CMD ["/start.sh"]
+CMD bash -c "/start.sh & /etc/confluent/docker/run"
