@@ -14,10 +14,6 @@ while ! curl -s http://localhost:8083/connectors > /dev/null 2>&1; do
 done
 echo "Kafka Connect is ready."
 
-# Delete existing connectors
-echo "Deleting existing connectors..."
-curl -s -X DELETE http://localhost:8083/connectors/page-view-s3-sink || true
-curl -s -X DELETE http://localhost:8083/connectors/page-view-event-s3-sink || true
 
 # Deploy the aggregated page view S3 Sink Connector
 echo "Deploying aggregated page view S3 Sink Connector..."
