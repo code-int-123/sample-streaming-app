@@ -312,8 +312,6 @@ jobs:
             CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="${{ secrets.CONFLUENT_KAFKA_API_KEY }}" password="${{ secrets.CONFLUENT_KAFKA_API_SECRET }}";
             CONNECT_PLUGIN_PATH=/usr/share/java,/usr/share/confluent-hub-components
             SCHEMA_REGISTRY_USER_INFO=${{ secrets.SCHEMA_REGISTRY_USER_INFO }}
-            KAFKA_JMX_PORT=9999
-            KAFKA_JMX_HOSTNAME=0.0.0.0
             ENVEOF
 
             docker run -d --name page-view-sink \
@@ -327,27 +325,3 @@ jobs:
               --env-file /home/ec2-user/page-view-sink.env \
               ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_SINK }}:latest
 
-            # Install and configure CloudWatch Agent for JMX metrics
-            if ! command -v /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl &> /dev/null; then
-              sudo yum install -y amazon-cloudwatch-agent
-            fi
-
-            sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null << 'CWEOF'
-            {
-              "metrics": {
-                "namespace": "PageViewConnector",
-                "metrics_collected": {
-                  "jmx": [
-                    {
-                      "endpoint": "service:jmx:rmi:///jndi/rmi://localhost:9999/jmxrmi",
-                      "target_system": "jvm"
-                    }
-                  ]
-                }
-              }
-            }
-            CWEOF
-
-            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
-              -a fetch-config -m ec2 -s \
-              -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
