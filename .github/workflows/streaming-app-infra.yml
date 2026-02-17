@@ -276,6 +276,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr.outputs.registry }}
+            docker stop page-view-sink || true
+            docker rm page-view-sink || true
+            docker image rm ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_SINK }}:latest || true
             docker pull ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_SINK }}:latest
 
             cat > /home/ec2-user/page-view-sink.env << 'ENVEOF'
@@ -306,8 +309,6 @@ jobs:
             CONNECT_PLUGIN_PATH=/usr/share/java,/usr/share/confluent-hub-components
             ENVEOF
 
-            docker stop page-view-sink || true
-            docker rm page-view-sink || true
             docker run -d --name page-view-sink \
               --restart unless-stopped \
               --log-driver=awslogs \
