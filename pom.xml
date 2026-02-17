@@ -23,7 +23,6 @@
 		<module>page-view-events</module>
 		<module>page-view-aggregator</module>
 		<module>page-view-events-publisher</module>
-		<module>custom-s3-partitioner</module>
 	</modules>
 
 	<repositories>
