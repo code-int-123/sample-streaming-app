@@ -100,6 +100,34 @@ resource "aws_iam_role_policy" "s3_connector_s3_access" {
   })
 }
 
+resource "aws_security_group" "s3_connector_sg" {
+  name        = "${var.environment}-page-view-sink-sg"
+  description = "Security group for page-view-sink EC2 instance"
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Kafka Connect REST API"
+    from_port   = 8083
+    to_port     = 8083
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_iam_instance_profile" "s3_connector_profile" {
   name = "${var.environment}-page-view-sink-ec2-profile"
   role = aws_iam_role.s3_connector_role.name
@@ -109,7 +137,7 @@ resource "aws_instance" "page_view_sink" {
   ami                         = data.aws_ami.amazon_linux.id
   instance_type               = var.ec2_instance_type
   iam_instance_profile        = aws_iam_instance_profile.s3_connector_profile.name
-  vpc_security_group_ids      = [aws_security_group.ec2_sg.id]
+  vpc_security_group_ids      = [aws_security_group.s3_connector_sg.id]
   key_name                    = var.ec2_key_pair_name
   associate_public_ip_address = true
 
