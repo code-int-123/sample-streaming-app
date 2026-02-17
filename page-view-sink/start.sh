@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# Start Kafka Connect in the background
-/etc/confluent/docker/run &
-
-# Wait for Kafka Connect to be ready
+# Wait for Kafka Connect to be ready (timeout after 5 minutes)
 echo "Waiting for Kafka Connect to start..."
+TIMEOUT=300
+ELAPSED=0
 while ! curl -s http://localhost:8083/connectors > /dev/null 2>&1; do
   sleep 5
+  ELAPSED=$((ELAPSED + 5))
+  if [ $ELAPSED -ge $TIMEOUT ]; then
+    echo "ERROR: Kafka Connect did not start within ${TIMEOUT}s"
+    exit 1
+  fi
 done
 echo "Kafka Connect is ready."
 
@@ -23,8 +27,5 @@ curl -X POST http://localhost:8083/connectors \
   -d @/connectors/page-view-raw-s3-sink-connector.json
 
 echo "Connectors deployed. Checking status..."
-curl -s http://localhost:8083/connectors/page-view-s3-sink/status | python3 -m json.tool
-curl -s http://localhost:8083/connectors/page-view-event-s3-sink/status | python3 -m json.tool
-
-# Keep container alive by waiting for Kafka Connect
-wait
+curl -s http://localhost:8083/connectors/page-view-s3-sink/status
+curl -s http://localhost:8083/connectors/page-view-event-s3-sink/status
