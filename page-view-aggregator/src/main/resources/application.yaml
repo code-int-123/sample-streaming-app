@@ -10,11 +10,11 @@ kafka:
   application-server: localhost:8080
   security-protocol: SASL_SSL
   sasl-mechanism: PLAIN
-  sasl-jaas-config: "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"2WEAJASHMTCZC4YD\" password=\"cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww\";"
+  sasl-jaas-config: ${KAFKA_SASL_JAAS_CONFIG}
   client-dns-lookup: use_all_dns_ips
   session-timeout-ms: 45000
   basic-auth-credentials-source: USER_INFO
-  basic-auth-user-info: "ZQBGEF4ZI7KVMKWG:cfltuIg/1L2C0cMWXDrtpPcV0yvdsmQ0/1Z7qD5+OM13u7YkvT/56FuyS74D4BSQ"
+  basic-auth-user-info: ${SCHEMA_REGISTRY_USER_INFO}
   replication-factor: ${KAFKA_REPLICATION_FACTOR:3}
   min-insync-replicas: ${KAFKA_MIN_INSYNC_REPLICAS:2}
   commit-interval-ms: 0

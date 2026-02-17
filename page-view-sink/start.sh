@@ -21,15 +21,15 @@ curl -s -X DELETE http://localhost:8083/connectors/page-view-event-s3-sink || tr
 
 # Deploy the aggregated page view S3 Sink Connector
 echo "Deploying aggregated page view S3 Sink Connector..."
-curl -X POST http://localhost:8083/connectors \
+envsubst < /connectors/s3-sink-connector.json | curl -X POST http://localhost:8083/connectors \
   -H "Content-Type: application/json" \
-  -d @/connectors/s3-sink-connector.json
+  -d @-
 
 # Deploy the raw page view S3 Sink Connector
 echo "Deploying raw page view S3 Sink Connector..."
-curl -X POST http://localhost:8083/connectors \
+envsubst < /connectors/page-view-raw-s3-sink-connector.json | curl -X POST http://localhost:8083/connectors \
   -H "Content-Type: application/json" \
-  -d @/connectors/page-view-raw-s3-sink-connector.json
+  -d @-
 
 echo "Connectors deployed. Checking status..."
 curl -s http://localhost:8083/connectors/page-view-s3-sink/status

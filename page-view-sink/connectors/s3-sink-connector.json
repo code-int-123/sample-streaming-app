@@ -21,6 +21,6 @@
     "value.converter": "io.confluent.connect.avro.AvroConverter",
     "value.converter.schema.registry.url": "https://psrc-z6m5xyw.us-east-1.aws.confluent.cloud",
     "value.converter.basic.auth.credentials.source": "USER_INFO",
-    "value.converter.basic.auth.user.info": "ZQBGEF4ZI7KVMKWG:cfltuIg/1L2C0cMWXDrtpPcV0yvdsmQ0/1Z7qD5+OM13u7YkvT/56FuyS74D4BSQ"
+    "value.converter.basic.auth.user.info": "${SCHEMA_REGISTRY_USER_INFO}"
   }
 }
