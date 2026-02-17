@@ -58,13 +58,11 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         env:
-#          TF_VAR_confluent_cloud_api_key: ${{ secrets.CONFLUENT_CLOUD_API_KEY }}
-#          TF_VAR_confluent_cloud_api_secret: ${{ secrets.CONFLUENT_CLOUD_API_SECRET }}
           TF_VAR_confluent_environment_id: test
           TF_VAR_confluent_cluster_id: lkc-3oj63j
           TF_VAR_confluent_cluster_rest_endpoint: https://pkc-oxqxx9.us-east-1.aws.confluent.cloud:443
-          TF_VAR_confluent_kafka_api_key: ${{ secrets.CONFLUENT_KAFKA_API_KEY }}
-          TF_VAR_confluent_kafka_api_secret: ${{ secrets.CONFLUENT_KAFKA_API_SECRET }}
+          TF_VAR_confluent_kafka_api_key: 2WEAJASHMTCZC4YD
+          TF_VAR_confluent_kafka_api_secret: cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww
           TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_ec2_key_pair_name: ${{ secrets.EC2_KEY_PAIR_NAME }}
@@ -111,8 +109,8 @@ jobs:
           TF_VAR_confluent_environment_id: test
           TF_VAR_confluent_cluster_id: lkc-3oj63j
           TF_VAR_confluent_cluster_rest_endpoint: https://pkc-oxqxx9.us-east-1.aws.confluent.cloud:443
-          TF_VAR_confluent_kafka_api_key: ${{ secrets.CONFLUENT_KAFKA_API_KEY }}
-          TF_VAR_confluent_kafka_api_secret: ${{ secrets.CONFLUENT_KAFKA_API_SECRET }}
+          TF_VAR_confluent_kafka_api_key: 2WEAJASHMTCZC4YD
+          TF_VAR_confluent_kafka_api_secret: cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww
           TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_ec2_key_pair_name: ${{ secrets.EC2_KEY_PAIR_NAME }}
