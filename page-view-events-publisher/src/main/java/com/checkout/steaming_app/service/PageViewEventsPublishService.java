@@ -46,7 +46,7 @@ public class PageViewEventsPublishService {
             int index = RANDOM.nextInt(0, 5);
             PageViewEvent event = PageViewEvent.newBuilder()
                     .setPostcode(postcodes.get(index))
-                    .setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.UTC).getEpochSecond())
+                    .setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
                     .setUserId(RANDOM.nextInt(0,Integer.MAX_VALUE))
                     .setWebpage("www.sample.com/"+UUID.randomUUID().toString())
                     .build();
