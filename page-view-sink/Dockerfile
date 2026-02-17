@@ -7,9 +7,10 @@ RUN confluent-hub install --no-prompt confluentinc/kafka-connect-avro-converter:
 ENV CONNECT_PLUGIN_PATH="/usr/share/java,/usr/share/confluent-hub-components"
 
 # Copy connector configs and startup script
+USER root
 COPY connectors/ /connectors/
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+COPY --chmod=755 start.sh /start.sh
+USER appuser
 
 # Start Kafka Connect, then register connectors in the background
 CMD bash -c "/etc/confluent/docker/run & /start.sh && wait"
