@@ -12,5 +12,4 @@ COPY connectors/ /connectors/
 COPY --chmod=755 start.sh /start.sh
 USER appuser
 
-# Start Kafka Connect, then register connectors in the background
-CMD bash -c "/etc/confluent/docker/run & /start.sh && wait"
+CMD ["/start.sh"]
