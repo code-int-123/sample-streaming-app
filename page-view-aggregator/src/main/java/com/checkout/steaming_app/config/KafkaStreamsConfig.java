@@ -143,7 +143,7 @@ public class KafkaStreamsConfig {
         config.put(StreamsConfig.CLIENT_ID_CONFIG, applicationId + "-client");
         config.put(
                 StreamsConfig.consumerPrefix(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG),
-                AutoOffsetReset.earliest().toString().toLowerCase(Locale.ROOT));
+                "earliest");
         return new KafkaStreamsConfiguration(config);
     }
 
