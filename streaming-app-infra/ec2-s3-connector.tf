@@ -141,6 +141,12 @@ resource "aws_instance" "page_view_sink" {
   key_name                    = var.ec2_key_pair_name
   associate_public_ip_address = true
 
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2
+  }
+
   root_block_device {
     volume_size = 30
     volume_type = "gp3"

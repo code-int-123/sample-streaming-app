@@ -8,7 +8,7 @@
     "s3.bucket.name": "test-page-view-raw-output",
     "storage.class": "io.confluent.connect.s3.storage.S3Storage",
     "format.class": "io.confluent.connect.s3.format.avro.AvroFormat",
-    "flush.size": "100",
+    "flush.size": "1",
     "rotate.interval.ms": "60000",
     "partitioner.class": "io.confluent.connect.storage.partitioner.FieldPartitioner",
     "partition.field.name": "postcode",
