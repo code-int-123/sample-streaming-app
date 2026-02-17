@@ -298,10 +298,10 @@ jobs:
             CONNECT_REST_ADVERTISED_HOST_NAME=localhost
             CONNECT_SECURITY_PROTOCOL=SASL_SSL
             CONNECT_SASL_MECHANISM=PLAIN
-            CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="2WEAJASHMTCZC4YD" password="cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww";
+            CONNECT_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="2WEAJASHMTCZC4YD" password="cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww";
             CONNECT_CONSUMER_SECURITY_PROTOCOL=SASL_SSL
             CONNECT_CONSUMER_SASL_MECHANISM=PLAIN
-            CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="2WEAJASHMTCZC4YD" password="cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww";
+            CONNECT_CONSUMER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="2WEAJASHMTCZC4YD" password="cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww";
             CONNECT_PRODUCER_SECURITY_PROTOCOL=SASL_SSL
             CONNECT_PRODUCER_SASL_MECHANISM=PLAIN
             CONNECT_PRODUCER_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="2WEAJASHMTCZC4YD" password="cfltr8GYQ9YHna9RmQIVYjfR7Mn+Hi6xGB9T8pWbrumaLTiXSBURlGmdMxqsDBww";
