@@ -3,6 +3,10 @@ spring:
     name: steaming-app
 
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
   cloudwatch:
     metrics:
       export:
@@ -15,7 +19,7 @@ kafka:
   application-id: steaming-app
   bootstrap-servers: pkc-oxqxx9.us-east-1.aws.confluent.cloud:9092
   schema-registry-url: https://psrc-z6m5xyw.us-east-1.aws.confluent.cloud
-  application-server: ${KAFKA_APPLICATION_SERVER:localhost:8080}
+  application-server: localhost:8080
   security-protocol: SASL_SSL
   sasl-mechanism: PLAIN
   sasl-jaas-config: ${KAFKA_SASL_JAAS_CONFIG}

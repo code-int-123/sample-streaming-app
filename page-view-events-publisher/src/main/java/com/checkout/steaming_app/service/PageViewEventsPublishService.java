@@ -83,8 +83,8 @@ public class PageViewEventsPublishService {
         ObjectMapper mapper = new ObjectMapper();
         try (InputStream is = new ClassPathResource("random-postcode.json").getInputStream()) {
             return mapper.readValue(is, new TypeReference<>() {});
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to load postcodes from random-postcode.json", ex);
+        }catch(Exception ex){
+            throw new RuntimeException();
         }
     }
 }
