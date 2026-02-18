@@ -33,6 +33,12 @@ variable "ec2_key_pair_name" {
   type        = string
 }
 
+variable "ssh_allowed_cidr_blocks" {
+  description = "CIDR blocks permitted to SSH into EC2 instances. Restrict to your IP(s) — do not use 0.0.0.0/0."
+  type        = list(string)
+  default     = []
+}
+
 # Confluent Cloud
 
 # variable "confluent_cloud_api_key" {

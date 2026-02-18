@@ -202,6 +202,7 @@ jobs:
             KAFKA_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="${{ secrets.CONFLUENT_KAFKA_API_KEY }}" password="${{ secrets.CONFLUENT_KAFKA_API_SECRET }}";
             SCHEMA_REGISTRY_USER_INFO=${{ secrets.SCHEMA_REGISTRY_USER_INFO }}
             AWS_REGION=${{ env.AWS_REGION }}
+            KAFKA_APPLICATION_SERVER=${{ steps.ec2.outputs.ip }}:8080
             ENVEOF
 
             docker run -d --name page-view-aggregator \
