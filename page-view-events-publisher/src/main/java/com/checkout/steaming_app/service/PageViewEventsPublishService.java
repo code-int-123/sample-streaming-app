@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -43,7 +44,7 @@ public class PageViewEventsPublishService {
         log.info("Loaded {} postcodes: {}", postcodes.size(), postcodes);
         int [] count = {0,0,0,0,0};
         for(int i=0;i<10;i++) {
-            int index = RANDOM.nextInt(0, 5);
+            int index = RANDOM.nextInt(0, count.length);
             PageViewEvent event = PageViewEvent.newBuilder()
                     .setPostcode(postcodes.get(index))
                     .setTimestamp(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
@@ -51,17 +52,19 @@ public class PageViewEventsPublishService {
                     .setWebpage("www.sample.com/"+UUID.randomUUID().toString())
                     .build();
             publish(event).join();
+            count[index]++;
+            log.info("Published event {}",event);
             Thread.sleep(1000);
+
         }
+        IntStream.range(0,postcodes.size()-1)
+                .forEach(i->log.info("PostCode {} published {} times",postcodes.get(i),count[i]));
     }
 
 
     public CompletableFuture<SendResult<String, PageViewEvent>> publish(PageViewEvent event) {
         String key = event.getPostcode().toString();
         String topic = properties.getTopicName();
-
-        log.info("Publishing PageViewEvent to topic={} key={} postcode={} webpage={}",
-                topic, key, event.getPostcode(), event.getWebpage());
 
         CompletableFuture<SendResult<String, PageViewEvent>> future = kafkaTemplate.send(topic, key, event);
 
