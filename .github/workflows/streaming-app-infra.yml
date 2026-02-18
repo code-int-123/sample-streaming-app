@@ -201,6 +201,7 @@ jobs:
             cat > /home/ec2-user/page-view-aggregator.env << 'ENVEOF'
             KAFKA_SASL_JAAS_CONFIG=org.apache.kafka.common.security.plain.PlainLoginModule required username="${{ secrets.CONFLUENT_KAFKA_API_KEY }}" password="${{ secrets.CONFLUENT_KAFKA_API_SECRET }}";
             SCHEMA_REGISTRY_USER_INFO=${{ secrets.SCHEMA_REGISTRY_USER_INFO }}
+            AWS_REGION=${{ env.AWS_REGION }}
             ENVEOF
 
             docker run -d --name page-view-aggregator \

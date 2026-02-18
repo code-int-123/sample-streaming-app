@@ -12,7 +12,6 @@ management:
       export:
         namespace: PageViewAggregator
         step: 60s
-        region: us-east-1
         enabled: true
 
 kafka:
