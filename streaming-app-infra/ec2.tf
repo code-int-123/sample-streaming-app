@@ -132,6 +132,16 @@ resource "aws_instance" "page_view_aggregator" {
     volume_type = "gp3"
   }
 
+  user_data = <<-EOF
+    #!/bin/bash
+    dnf install -y docker
+    systemctl enable docker
+    systemctl start docker
+    usermod -aG docker ec2-user
+  EOF
+
+  user_data_replace_on_change = true
+
   tags = {
     Name        = "${var.environment}-page-view-aggregator"
     Environment = var.environment
