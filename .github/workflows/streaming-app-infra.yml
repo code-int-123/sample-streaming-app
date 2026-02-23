@@ -193,6 +193,8 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
+            sudo systemctl start docker || true
+            timeout 60 bash -c 'until docker info > /dev/null 2>&1; do sleep 3; done'
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr.outputs.registry }}
             docker pull ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
             docker stop page-view-aggregator || true
@@ -281,6 +283,8 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           script: |
+            sudo systemctl start docker || true
+            timeout 60 bash -c 'until docker info > /dev/null 2>&1; do sleep 3; done'
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.ecr.outputs.registry }}
             docker rm -f page-view-sink || true
             docker image rm ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_SINK }}:latest || true
